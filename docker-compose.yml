@@ -1,16 +1,5 @@
-services:
-  postgres:
-    image: postgres:16
-    container_name: appointment-board-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: appointment_board
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
+# Appointment Board - Container orchestration
+# Database hosted remotely on Neon PostgreSQL (Serverless)
+# Application containerization reserved for Phase 15.
+version: "3.8"
+services: {}
