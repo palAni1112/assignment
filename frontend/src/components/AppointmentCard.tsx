@@ -8,9 +8,10 @@ import {
 
 interface Props {
   appointment: Appointment;
+  onEdit: (appointment: Appointment) => void;
 }
 
-export function AppointmentCard({ appointment }: Props) {
+export function AppointmentCard({ appointment, onEdit }: Props) {
   return (
     <article
       className={`appointment-card ${
@@ -40,6 +41,17 @@ export function AppointmentCard({ appointment }: Props) {
           {formatTime(appointment.endTime)}
         </span>
       </div>
+
+      {appointment.status === "SCHEDULED" && (
+        <div className="appointment-card__actions">
+          <button
+            type="button"
+            onClick={() => onEdit(appointment)}
+          >
+            Edit
+          </button>
+        </div>
+      )}
     </article>
   );
 }

@@ -5,6 +5,10 @@ import type {
 } from "../types/appointment";
 
 interface Props {
+  initialValues?: CreateAppointmentInput;
+
+  mode?: "create" | "edit";
+
   onSubmit: (
     input: CreateAppointmentInput
   ) => Promise<void>;
@@ -21,10 +25,16 @@ const initialForm: CreateAppointmentInput = {
 };
 
 export function AppointmentForm({
+  initialValues,
+  mode = "create",
   onSubmit,
   onCancel,
 }: Props) {
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState(
+    initialValues ?? initialForm
+  );
+
+  const isEditMode = mode === "edit";
 
   const [error, setError] =
     useState<string | null>(null);
@@ -80,12 +90,16 @@ export function AppointmentForm({
         description: form.description.trim(),
       });
 
-      setForm(initialForm);
+      if (!isEditMode) {
+        setForm(initialForm);
+      }
     } catch (error) {
       setError(
         error instanceof Error
           ? error.message
-          : "Unable to create appointment."
+          : isEditMode
+            ? "Unable to update appointment."
+            : "Unable to create appointment."
       );
     } finally {
       setSubmitting(false);
@@ -99,8 +113,16 @@ export function AppointmentForm({
     >
       <div className="form-header">
         <div>
-          <p className="eyebrow">NEW APPOINTMENT</p>
-          <h2>Add Appointment</h2>
+          <p className="eyebrow">
+            {isEditMode
+              ? "EDIT APPOINTMENT"
+              : "NEW APPOINTMENT"}
+          </p>
+          <h2>
+            {isEditMode
+              ? "Edit Appointment"
+              : "Add Appointment"}
+          </h2>
         </div>
 
         <button
@@ -202,8 +224,10 @@ export function AppointmentForm({
           disabled={submitting}
         >
           {submitting
-            ? "Creating..."
-            : "Create Appointment"}
+            ? "Saving..."
+            : isEditMode
+              ? "Save Changes"
+              : "Create Appointment"}
         </button>
       </div>
     </form>

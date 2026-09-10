@@ -2,6 +2,7 @@ import type {
   Appointment,
   ApiSuccess,
   CreateAppointmentInput,
+  UpdateAppointmentInput,
 } from "../types/appointment";
 
 const API_URL =
@@ -37,6 +38,33 @@ export async function createAppointment(
     throw new Error(
       result?.error?.message ||
         "Failed to create appointment."
+    );
+  }
+
+  return (result as ApiSuccess<Appointment>).data;
+}
+
+export async function updateAppointment(
+  id: string,
+  input: UpdateAppointmentInput
+): Promise<Appointment> {
+  const response = await fetch(
+    `${API_URL}/appointments/${id}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result?.error?.message ||
+        "Failed to update appointment."
     );
   }
 

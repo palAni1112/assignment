@@ -113,11 +113,20 @@ export async function getAppointmentById(id: string) {
   });
 }
 
+function getTimeMinutes(date: Date): number {
+  return (
+    date.getUTCHours() * 60 +
+    date.getUTCMinutes()
+  );
+}
+
 export async function updateAppointment(
   id: string,
   input: UpdateAppointmentInput
 ) {
-  const existing = await getAppointmentById(id);
+  const existing = await prisma.appointment.findUnique({
+    where: { id },
+  });
 
   if (!existing) {
     throw new AppError(
@@ -127,16 +136,31 @@ export async function updateAppointment(
     );
   }
 
+  if (existing.status !== AppointmentStatus.SCHEDULED) {
+    throw new AppError(
+      409,
+      "INVALID_STATUS_TRANSITION",
+      "Only scheduled appointments can be edited."
+    );
+  }
+
   // Calculate final target values for the appointment
-  const finalDate = input.date ? new Date(`${input.date}T00:00:00Z`) : existing.date;
+  const finalDate = input.date
+    ? new Date(`${input.date}T00:00:00Z`)
+    : existing.date;
+
   const finalStartTime = input.startTime
     ? new Date(`1970-01-01T${input.startTime}:00Z`)
     : existing.startTime;
+
   const finalEndTime = input.endTime
     ? new Date(`1970-01-01T${input.endTime}:00Z`)
     : existing.endTime;
 
-  if (finalEndTime.getTime() <= finalStartTime.getTime()) {
+  if (
+    getTimeMinutes(finalEndTime) <=
+    getTimeMinutes(finalStartTime)
+  ) {
     throw new AppError(
       400,
       "VALIDATION_ERROR",
@@ -144,10 +168,12 @@ export async function updateAppointment(
     );
   }
 
-  // If status is SCHEDULED, ensure no conflict on target date (excluding self)
-  if (existing.status === AppointmentStatus.SCHEDULED) {
-    await ensureNoConflict(finalDate, finalStartTime, finalEndTime, id);
-  }
+  await ensureNoConflict(
+    finalDate,
+    finalStartTime,
+    finalEndTime,
+    id
+  );
 
   try {
     return await prisma.appointment.update({
@@ -159,15 +185,9 @@ export async function updateAppointment(
         ...(input.description !== undefined && {
           description: input.description,
         }),
-        ...(input.date !== undefined && {
-          date: finalDate,
-        }),
-        ...(input.startTime !== undefined && {
-          startTime: finalStartTime,
-        }),
-        ...(input.endTime !== undefined && {
-          endTime: finalEndTime,
-        }),
+        date: finalDate,
+        startTime: finalStartTime,
+        endTime: finalEndTime,
       },
     });
   } catch (error) {

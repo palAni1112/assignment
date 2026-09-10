@@ -11,6 +11,7 @@ import type {
 import {
   getAppointments,
   createAppointment,
+  updateAppointment,
 } from "../services/appointmentApi";
 import { AppointmentCard } from "./AppointmentCard";
 import { AppointmentForm } from "./AppointmentForm";
@@ -26,6 +27,9 @@ export function AppointmentBoard() {
 
   const [showForm, setShowForm] =
     useState(false);
+
+  const [editingAppointment, setEditingAppointment] =
+    useState<Appointment | null>(null);
 
   const [successMessage, setSuccessMessage] =
     useState<string | null>(null);
@@ -87,6 +91,50 @@ export function AppointmentBoard() {
     }, 3000);
   }
 
+  async function handleUpdate(
+    input: CreateAppointmentInput
+  ) {
+    if (!editingAppointment) {
+      return;
+    }
+
+    const updated = await updateAppointment(
+      editingAppointment.id,
+      input
+    );
+
+    setAppointments((current) =>
+      current
+        .map((appointment) =>
+          appointment.id === updated.id
+            ? updated
+            : appointment
+        )
+        .sort((a, b) => {
+          const dateComparison =
+            a.date.localeCompare(b.date);
+
+          if (dateComparison !== 0) {
+            return dateComparison;
+          }
+
+          return a.startTime.localeCompare(
+            b.startTime
+          );
+        })
+    );
+
+    setEditingAppointment(null);
+
+    setSuccessMessage(
+      "Appointment updated successfully."
+    );
+
+    window.setTimeout(() => {
+      setSuccessMessage(null);
+    }, 3000);
+  }
+
   return (
     <>
       <div className="board-toolbar">
@@ -94,6 +142,7 @@ export function AppointmentBoard() {
           type="button"
           onClick={() => {
             setShowForm(true);
+            setEditingAppointment(null);
             setSuccessMessage(null);
           }}
         >
@@ -114,6 +163,27 @@ export function AppointmentBoard() {
         <AppointmentForm
           onSubmit={handleCreate}
           onCancel={() => setShowForm(false)}
+        />
+      )}
+
+      {editingAppointment && (
+        <AppointmentForm
+          key={editingAppointment.id}
+          mode="edit"
+          initialValues={{
+            title: editingAppointment.title,
+            description:
+              editingAppointment.description ?? "",
+            date: editingAppointment.date.slice(0, 10),
+            startTime:
+              editingAppointment.startTime.slice(11, 16),
+            endTime:
+              editingAppointment.endTime.slice(11, 16),
+          }}
+          onSubmit={handleUpdate}
+          onCancel={() =>
+            setEditingAppointment(null)
+          }
         />
       )}
 
@@ -141,6 +211,11 @@ export function AppointmentBoard() {
             <AppointmentCard
               key={appointment.id}
               appointment={appointment}
+              onEdit={(appt) => {
+                setShowForm(false);
+                setEditingAppointment(appt);
+                setSuccessMessage(null);
+              }}
             />
           ))}
         </section>

@@ -23,6 +23,14 @@ export interface CreateAppointmentInput {
   endTime: string;
 }
 
+export interface UpdateAppointmentInput {
+  title?: string;
+  description?: string;
+  date?: string;
+  startTime?: string;
+  endTime?: string;
+}
+
 export interface ApiSuccess<T> {
   success: true;
   data: T;
