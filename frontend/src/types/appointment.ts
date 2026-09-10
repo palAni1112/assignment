@@ -31,6 +31,11 @@ export interface UpdateAppointmentInput {
   endTime?: string;
 }
 
+export interface AppointmentFilters {
+  date?: string;
+  status?: AppointmentStatus;
+}
+
 export interface ApiSuccess<T> {
   success: true;
   data: T;

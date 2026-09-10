@@ -1,6 +1,7 @@
 import type {
   Appointment,
   ApiSuccess,
+  AppointmentFilters,
   CreateAppointmentInput,
   UpdateAppointmentInput,
 } from "../types/appointment";
@@ -8,17 +9,35 @@ import type {
 const API_URL =
   import.meta.env?.VITE_API_URL || "http://localhost:8001/api";
 
-export async function getAppointments(): Promise<Appointment[]> {
-  const response = await fetch(`${API_URL}/appointments`);
+export async function getAppointments(
+  filters: AppointmentFilters = {}
+): Promise<Appointment[]> {
+  const params = new URLSearchParams();
 
-  if (!response.ok) {
-    throw new Error("Failed to load appointments.");
+  if (filters.date) {
+    params.set("date", filters.date);
   }
 
-  const result: ApiSuccess<Appointment[]> =
-    await response.json();
+  if (filters.status) {
+    params.set("status", filters.status);
+  }
 
-  return result.data;
+  const query = params.toString();
+
+  const response = await fetch(
+    `${API_URL}/appointments${query ? `?${query}` : ""}`
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result?.error?.message ||
+        "Failed to load appointments."
+    );
+  }
+
+  return (result as ApiSuccess<Appointment[]>).data;
 }
 
 export async function createAppointment(

@@ -5,6 +5,7 @@ import {
 
 import type {
   Appointment,
+  AppointmentFilters,
   CreateAppointmentInput,
 } from "../types/appointment";
 
@@ -15,8 +16,13 @@ import {
   completeAppointment,
   cancelAppointment,
 } from "../services/appointmentApi";
+import {
+  sortAppointments,
+  matchesFilters,
+} from "../utils/appointments";
 import { AppointmentCard } from "./AppointmentCard";
 import { AppointmentForm } from "./AppointmentForm";
+import { FilterBar } from "./FilterBar";
 
 export function AppointmentBoard() {
   const [appointments, setAppointments] =
@@ -26,6 +32,12 @@ export function AppointmentBoard() {
 
   const [error, setError] =
     useState<string | null>(null);
+
+  const [filters, setFilters] =
+    useState<AppointmentFilters>({});
+
+  const [reloadKey, setReloadKey] =
+    useState(0);
 
   const [showForm, setShowForm] =
     useState(false);
@@ -48,9 +60,10 @@ export function AppointmentBoard() {
         setLoading(true);
         setError(null);
 
-        const data = await getAppointments();
+        const data =
+          await getAppointments(filters);
 
-        setAppointments(data);
+        setAppointments(sortAppointments(data));
       } catch (error) {
         setError(
           error instanceof Error
@@ -63,7 +76,21 @@ export function AppointmentBoard() {
     }
 
     loadAppointments();
-  }, []);
+  }, [filters, reloadKey]);
+
+  function handleFilterChange(
+    newFilters: AppointmentFilters
+  ) {
+    setFilters(newFilters);
+    setSuccessMessage(null);
+    setActionError(null);
+  }
+
+  function handleClearFilters() {
+    setFilters({});
+    setSuccessMessage(null);
+    setActionError(null);
+  }
 
   async function handleCreate(
     input: CreateAppointmentInput
@@ -71,22 +98,14 @@ export function AppointmentBoard() {
     const appointment =
       await createAppointment(input);
 
-    setAppointments((current) =>
-      [...current, appointment].sort(
-        (a, b) => {
-          const dateComparison =
-            a.date.localeCompare(b.date);
-
-          if (dateComparison !== 0) {
-            return dateComparison;
-          }
-
-          return a.startTime.localeCompare(
-            b.startTime
-          );
-        }
-      )
-    );
+    if (matchesFilters(appointment, filters)) {
+      setAppointments((current) =>
+        sortAppointments([
+          ...current,
+          appointment,
+        ])
+      );
+    }
 
     setShowForm(false);
 
@@ -111,26 +130,19 @@ export function AppointmentBoard() {
       input
     );
 
-    setAppointments((current) =>
-      current
-        .map((appointment) =>
-          appointment.id === updated.id
+    setAppointments((current) => {
+      const updatedList = current
+        .map((item) =>
+          item.id === updated.id
             ? updated
-            : appointment
+            : item
         )
-        .sort((a, b) => {
-          const dateComparison =
-            a.date.localeCompare(b.date);
+        .filter((item) =>
+          matchesFilters(item, filters)
+        );
 
-          if (dateComparison !== 0) {
-            return dateComparison;
-          }
-
-          return a.startTime.localeCompare(
-            b.startTime
-          );
-        })
-    );
+      return sortAppointments(updatedList);
+    });
 
     setEditingAppointment(null);
 
@@ -154,10 +166,16 @@ export function AppointmentBoard() {
         await completeAppointment(appointment.id);
 
       setAppointments((current) =>
-        current.map((item) =>
-          item.id === updated.id
-            ? updated
-            : item
+        sortAppointments(
+          current
+            .map((item) =>
+              item.id === updated.id
+                ? updated
+                : item
+            )
+            .filter((item) =>
+              matchesFilters(item, filters)
+            )
         )
       );
 
@@ -190,10 +208,16 @@ export function AppointmentBoard() {
         await cancelAppointment(appointment.id);
 
       setAppointments((current) =>
-        current.map((item) =>
-          item.id === updated.id
-            ? updated
-            : item
+        sortAppointments(
+          current
+            .map((item) =>
+              item.id === updated.id
+                ? updated
+                : item
+            )
+            .filter((item) =>
+              matchesFilters(item, filters)
+            )
         )
       );
 
@@ -230,6 +254,12 @@ export function AppointmentBoard() {
           + Add Appointment
         </button>
       </div>
+
+      <FilterBar
+        filters={filters}
+        onChange={handleFilterChange}
+        onClear={handleClearFilters}
+      />
 
       {successMessage && (
         <div
@@ -278,20 +308,36 @@ export function AppointmentBoard() {
       )}
 
       {loading && (
-        <div className="state-message">
+        <div
+          className="state-message"
+          role="status"
+        >
           Loading appointments...
         </div>
       )}
 
       {!loading && error && (
-        <div className="state-message state-message--error">
-          {error}
+        <div
+          className="state-message state-message--error"
+          role="alert"
+        >
+          <p>{error}</p>
+          <button
+            type="button"
+            onClick={() =>
+              setReloadKey((value) => value + 1)
+            }
+          >
+            Try again
+          </button>
         </div>
       )}
 
       {!loading && !error && appointments.length === 0 && (
         <div className="state-message">
-          No appointments found.
+          {filters.date || filters.status
+            ? "No appointments match the selected filters."
+            : "No appointments scheduled yet."}
         </div>
       )}
 
