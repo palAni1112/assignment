@@ -15,6 +15,14 @@ export interface Appointment {
   updatedAt: string;
 }
 
+export interface CreateAppointmentInput {
+  title: string;
+  description: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
 export interface ApiSuccess<T> {
   success: true;
   data: T;
