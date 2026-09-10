@@ -5,6 +5,8 @@ import {
   getAppointmentsController,
   getAppointmentController,
   updateAppointmentController,
+  completeAppointmentController,
+  cancelAppointmentController,
 } from "../controllers/appointment.controller.js";
 
 import {
@@ -36,9 +38,20 @@ router.post(
 );
 
 router.patch(
+  "/:id/complete",
+  completeAppointmentController
+);
+
+router.patch(
+  "/:id/cancel",
+  cancelAppointmentController
+);
+
+router.patch(
   "/:id",
   validateBody(updateAppointmentSchema),
   updateAppointmentController
 );
 
 export default router;
+

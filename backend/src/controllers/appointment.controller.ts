@@ -5,6 +5,8 @@ import {
   getAppointments,
   getAppointmentById,
   updateAppointment,
+  completeAppointment,
+  cancelAppointment,
 } from "../services/appointment.service.js";
 
 export async function createAppointmentController(
@@ -101,6 +103,42 @@ export async function updateAppointmentController(
     }
 
     const appointment = await updateAppointment(id, req.body);
+
+    res.status(200).json({
+      success: true,
+      data: appointment,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function completeAppointmentController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const id = req.params.id as string;
+    const appointment = await completeAppointment(id);
+
+    res.status(200).json({
+      success: true,
+      data: appointment,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function cancelAppointmentController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const id = req.params.id as string;
+    const appointment = await cancelAppointment(id);
 
     res.status(200).json({
       success: true,

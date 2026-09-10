@@ -176,3 +176,61 @@ export async function updateAppointment(
     throw error;
   }
 }
+
+export async function completeAppointment(id: string) {
+  const appointment = await prisma.appointment.findUnique({
+    where: { id },
+  });
+
+  if (!appointment) {
+    throw new AppError(
+      404,
+      "APPOINTMENT_NOT_FOUND",
+      "Appointment not found."
+    );
+  }
+
+  if (appointment.status !== AppointmentStatus.SCHEDULED) {
+    throw new AppError(
+      409,
+      "INVALID_STATUS_TRANSITION",
+      "Only scheduled appointments can be completed."
+    );
+  }
+
+  return prisma.appointment.update({
+    where: { id },
+    data: {
+      status: AppointmentStatus.COMPLETED,
+    },
+  });
+}
+
+export async function cancelAppointment(id: string) {
+  const appointment = await prisma.appointment.findUnique({
+    where: { id },
+  });
+
+  if (!appointment) {
+    throw new AppError(
+      404,
+      "APPOINTMENT_NOT_FOUND",
+      "Appointment not found."
+    );
+  }
+
+  if (appointment.status !== AppointmentStatus.SCHEDULED) {
+    throw new AppError(
+      409,
+      "INVALID_STATUS_TRANSITION",
+      "Only scheduled appointments can be cancelled."
+    );
+  }
+
+  return prisma.appointment.update({
+    where: { id },
+    data: {
+      status: AppointmentStatus.CANCELLED,
+    },
+  });
+}
