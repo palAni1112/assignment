@@ -82,17 +82,28 @@ export async function createAppointment(input: CreateAppointmentInput) {
   }
 }
 
-export async function getAppointments(filters: AppointmentFilters) {
+export async function getAppointments(
+  filters: AppointmentFilters
+) {
   return prisma.appointment.findMany({
     where: {
       ...(filters.date && {
-        date: new Date(filters.date),
+        date: new Date(`${filters.date}T00:00:00Z`),
       }),
+
       ...(filters.status && {
         status: filters.status,
       }),
     },
-    orderBy: [{ date: "asc" }, { startTime: "asc" }],
+
+    orderBy: [
+      {
+        date: "asc",
+      },
+      {
+        startTime: "asc",
+      },
+    ],
   });
 }
 

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { AppointmentStatus } from "@prisma/client";
 
 import {
   createAppointment,
@@ -32,16 +33,18 @@ export async function getAppointmentsController(
   next: NextFunction
 ) {
   try {
+    const status =
+      typeof req.query.status === "string"
+        ? (req.query.status as AppointmentStatus)
+        : undefined;
+
     const appointments = await getAppointments({
       date:
         typeof req.query.date === "string"
           ? req.query.date
           : undefined,
 
-      status:
-        typeof req.query.status === "string"
-          ? (req.query.status as any)
-          : undefined,
+      status,
     });
 
     res.status(200).json({
