@@ -13,6 +13,7 @@ const labels: Record<AppointmentStatus, string> = {
 export function StatusBadge({ status }: Props) {
   return (
     <span className={`status status--${status.toLowerCase()}`}>
+      <span className="status__dot" aria-hidden="true" />
       {labels[status]}
     </span>
   );

@@ -107,129 +107,154 @@ export function AppointmentForm({
   }
 
   return (
-    <form
-      className="appointment-form"
-      onSubmit={handleSubmit}
-    >
-      <div className="form-header">
-        <div>
-          <p className="eyebrow">
-            {isEditMode
-              ? "EDIT APPOINTMENT"
-              : "NEW APPOINTMENT"}
-          </p>
-          <h2>
-            {isEditMode
-              ? "Edit Appointment"
-              : "Add Appointment"}
-          </h2>
+    <div className="appointment-form-wrapper">
+      <form
+        className="appointment-form"
+        onSubmit={handleSubmit}
+      >
+        <div className="form-header">
+          <div className="form-header__titles">
+            <div className="form-header__badge">
+              <span className="form-header__badge-icon">
+                {isEditMode ? "✎" : "＋"}
+              </span>
+              <p className="eyebrow">
+                {isEditMode
+                  ? "EDIT APPOINTMENT"
+                  : "NEW APPOINTMENT"}
+              </p>
+            </div>
+            <h2>
+              {isEditMode
+                ? "Edit Appointment"
+                : "Add Appointment"}
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            className="form-close-btn"
+            onClick={onCancel}
+            disabled={submitting}
+            aria-label="Close"
+          >
+            ✕
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={submitting}
-        >
-          Close
-        </button>
-      </div>
+        {error && (
+          <div className="form-error" role="alert">
+            <svg
+              className="error-icon"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}
 
-      {error && (
-        <div className="form-error" role="alert">
-          {error}
+        <div className="form-fields">
+          <label>
+            <span className="field-label">Title</span>
+            <input
+              type="text"
+              value={form.title}
+              onChange={(event) =>
+                updateField("title", event.target.value)
+              }
+              placeholder="e.g. Design Architecture Review"
+              maxLength={200}
+            />
+          </label>
+
+          <label>
+            <span className="field-label">Description</span>
+            <textarea
+              value={form.description}
+              onChange={(event) =>
+                updateField(
+                  "description",
+                  event.target.value
+                )
+              }
+              placeholder="Provide agenda or relevant notes for the attendees..."
+              rows={3}
+              maxLength={5000}
+            />
+          </label>
+
+          <label>
+            <span className="field-label">Date</span>
+            <input
+              type="date"
+              value={form.date}
+              onChange={(event) =>
+                updateField("date", event.target.value)
+              }
+            />
+          </label>
+
+          <div className="form-row">
+            <label>
+              <span className="field-label">Start time</span>
+              <input
+                type="time"
+                value={form.startTime}
+                onChange={(event) =>
+                  updateField(
+                    "startTime",
+                    event.target.value
+                  )
+                }
+              />
+            </label>
+
+            <label>
+              <span className="field-label">End time</span>
+              <input
+                type="time"
+                value={form.endTime}
+                onChange={(event) =>
+                  updateField(
+                    "endTime",
+                    event.target.value
+                  )
+                }
+              />
+            </label>
+          </div>
         </div>
-      )}
 
-      <label>
-        Title
-        <input
-          type="text"
-          value={form.title}
-          onChange={(event) =>
-            updateField("title", event.target.value)
-          }
-          placeholder="Client Meeting"
-          maxLength={200}
-        />
-      </label>
+        <div className="form-actions">
+          <button
+            type="button"
+            className="btn btn--secondary"
+            onClick={onCancel}
+            disabled={submitting}
+          >
+            Cancel
+          </button>
 
-      <label>
-        Description
-        <textarea
-          value={form.description}
-          onChange={(event) =>
-            updateField(
-              "description",
-              event.target.value
-            )
-          }
-          placeholder="Discuss project requirements"
-          rows={4}
-          maxLength={5000}
-        />
-      </label>
-
-      <label>
-        Date
-        <input
-          type="date"
-          value={form.date}
-          onChange={(event) =>
-            updateField("date", event.target.value)
-          }
-        />
-      </label>
-
-      <div className="form-row">
-        <label>
-          Start time
-          <input
-            type="time"
-            value={form.startTime}
-            onChange={(event) =>
-              updateField(
-                "startTime",
-                event.target.value
-              )
-            }
-          />
-        </label>
-
-        <label>
-          End time
-          <input
-            type="time"
-            value={form.endTime}
-            onChange={(event) =>
-              updateField(
-                "endTime",
-                event.target.value
-              )
-            }
-          />
-        </label>
-      </div>
-
-      <div className="form-actions">
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={submitting}
-        >
-          Cancel
-        </button>
-
-        <button
-          type="submit"
-          disabled={submitting}
-        >
-          {submitting
-            ? "Saving..."
-            : isEditMode
-              ? "Save Changes"
-              : "Create Appointment"}
-        </button>
-      </div>
-    </form>
+          <button
+            type="submit"
+            className="btn btn--primary"
+            disabled={submitting}
+          >
+            {submitting
+              ? "Saving..."
+              : isEditMode
+                ? "Save Changes"
+                : "Create Appointment"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
