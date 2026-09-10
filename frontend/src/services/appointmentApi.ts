@@ -70,3 +70,47 @@ export async function updateAppointment(
 
   return (result as ApiSuccess<Appointment>).data;
 }
+
+export async function completeAppointment(
+  id: string
+): Promise<Appointment> {
+  const response = await fetch(
+    `${API_URL}/appointments/${id}/complete`,
+    {
+      method: "PATCH",
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result?.error?.message ||
+        "Failed to complete appointment."
+    );
+  }
+
+  return (result as ApiSuccess<Appointment>).data;
+}
+
+export async function cancelAppointment(
+  id: string
+): Promise<Appointment> {
+  const response = await fetch(
+    `${API_URL}/appointments/${id}/cancel`,
+    {
+      method: "PATCH",
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result?.error?.message ||
+        "Failed to cancel appointment."
+    );
+  }
+
+  return (result as ApiSuccess<Appointment>).data;
+}

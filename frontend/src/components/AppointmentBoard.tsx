@@ -12,6 +12,8 @@ import {
   getAppointments,
   createAppointment,
   updateAppointment,
+  completeAppointment,
+  cancelAppointment,
 } from "../services/appointmentApi";
 import { AppointmentCard } from "./AppointmentCard";
 import { AppointmentForm } from "./AppointmentForm";
@@ -32,6 +34,12 @@ export function AppointmentBoard() {
     useState<Appointment | null>(null);
 
   const [successMessage, setSuccessMessage] =
+    useState<string | null>(null);
+
+  const [actionError, setActionError] =
+    useState<string | null>(null);
+
+  const [actionLoadingId, setActionLoadingId] =
     useState<string | null>(null);
 
   useEffect(() => {
@@ -135,6 +143,78 @@ export function AppointmentBoard() {
     }, 3000);
   }
 
+  async function handleComplete(
+    appointment: Appointment
+  ) {
+    try {
+      setActionError(null);
+      setActionLoadingId(appointment.id);
+
+      const updated =
+        await completeAppointment(appointment.id);
+
+      setAppointments((current) =>
+        current.map((item) =>
+          item.id === updated.id
+            ? updated
+            : item
+        )
+      );
+
+      setSuccessMessage(
+        "Appointment marked as completed."
+      );
+
+      window.setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+    } catch (error) {
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : "Unable to complete appointment."
+      );
+    } finally {
+      setActionLoadingId(null);
+    }
+  }
+
+  async function handleCancel(
+    appointment: Appointment
+  ) {
+    try {
+      setActionError(null);
+      setActionLoadingId(appointment.id);
+
+      const updated =
+        await cancelAppointment(appointment.id);
+
+      setAppointments((current) =>
+        current.map((item) =>
+          item.id === updated.id
+            ? updated
+            : item
+        )
+      );
+
+      setSuccessMessage(
+        "Appointment cancelled."
+      );
+
+      window.setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+    } catch (error) {
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : "Unable to cancel appointment."
+      );
+    } finally {
+      setActionLoadingId(null);
+    }
+  }
+
   return (
     <>
       <div className="board-toolbar">
@@ -144,6 +224,7 @@ export function AppointmentBoard() {
             setShowForm(true);
             setEditingAppointment(null);
             setSuccessMessage(null);
+            setActionError(null);
           }}
         >
           + Add Appointment
@@ -156,6 +237,15 @@ export function AppointmentBoard() {
           role="status"
         >
           {successMessage}
+        </div>
+      )}
+
+      {actionError && (
+        <div
+          className="form-error"
+          role="alert"
+        >
+          {actionError}
         </div>
       )}
 
@@ -215,7 +305,13 @@ export function AppointmentBoard() {
                 setShowForm(false);
                 setEditingAppointment(appt);
                 setSuccessMessage(null);
+                setActionError(null);
               }}
+              onComplete={handleComplete}
+              onCancel={handleCancel}
+              actionLoading={
+                actionLoadingId === appointment.id
+              }
             />
           ))}
         </section>

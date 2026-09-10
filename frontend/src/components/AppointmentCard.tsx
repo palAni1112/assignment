@@ -9,9 +9,28 @@ import {
 interface Props {
   appointment: Appointment;
   onEdit: (appointment: Appointment) => void;
+  onComplete: (appointment: Appointment) => void;
+  onCancel: (appointment: Appointment) => void;
+  actionLoading?: boolean;
 }
 
-export function AppointmentCard({ appointment, onEdit }: Props) {
+export function AppointmentCard({
+  appointment,
+  onEdit,
+  onComplete,
+  onCancel,
+  actionLoading = false,
+}: Props) {
+  function handleCancel() {
+    const confirmed = window.confirm(
+      "Are you sure you want to cancel this appointment?"
+    );
+
+    if (confirmed) {
+      onCancel(appointment);
+    }
+  }
+
   return (
     <article
       className={`appointment-card ${
@@ -46,9 +65,30 @@ export function AppointmentCard({ appointment, onEdit }: Props) {
         <div className="appointment-card__actions">
           <button
             type="button"
+            disabled={actionLoading}
             onClick={() => onEdit(appointment)}
           >
             Edit
+          </button>
+
+          <button
+            type="button"
+            disabled={actionLoading}
+            onClick={() => onComplete(appointment)}
+          >
+            {actionLoading
+              ? "Completing..."
+              : "Complete"}
+          </button>
+
+          <button
+            type="button"
+            disabled={actionLoading}
+            onClick={handleCancel}
+          >
+            {actionLoading
+              ? "Cancelling..."
+              : "Cancel"}
           </button>
         </div>
       )}

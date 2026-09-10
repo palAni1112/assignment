@@ -220,24 +220,30 @@
 .appointment-card__actions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 16px;
 }
 
 .appointment-card__actions button {
-  padding: 7px 14px;
-  border: 1px solid #d4d4d8;
+  padding: 7px 12px;
+  border: 1px solid #ccc;
   border-radius: 7px;
-  background: #ffffff;
-  color: #27272a;
+  background: transparent;
+  cursor: pointer;
   font-weight: 500;
   font-size: 0.85rem;
-  cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.appointment-card__actions button:hover {
+.appointment-card__actions button:hover:not(:disabled) {
   background: #f4f4f5;
   border-color: #a1a1aa;
+}
+
+.appointment-card__actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .status {
