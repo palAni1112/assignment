@@ -7,11 +7,38 @@ import {
   updateAppointmentController,
 } from "../controllers/appointment.controller.js";
 
+import {
+  validateBody,
+  validateQuery,
+} from "../middleware/validate.middleware.js";
+
+import {
+  createAppointmentSchema,
+  updateAppointmentSchema,
+} from "../validators/appointment.validator.js";
+
+import { appointmentQuerySchema } from "../validators/query.validator.js";
+
 const router = Router();
 
-router.get("/", getAppointmentsController);
+router.get(
+  "/",
+  validateQuery(appointmentQuerySchema),
+  getAppointmentsController
+);
+
 router.get("/:id", getAppointmentController);
-router.post("/", createAppointmentController);
-router.patch("/:id", updateAppointmentController);
+
+router.post(
+  "/",
+  validateBody(createAppointmentSchema),
+  createAppointmentController
+);
+
+router.patch(
+  "/:id",
+  validateBody(updateAppointmentSchema),
+  updateAppointmentController
+);
 
 export default router;
