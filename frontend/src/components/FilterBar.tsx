@@ -93,6 +93,30 @@ export function FilterBar({
           </div>
         </label>
 
+        <label className="filter-control">
+          <span className="filter-control__label">Team member</span>
+          <div className="filter-control__select-wrapper">
+            <select className="filter-select" defaultValue="all">
+              <option value="all">All members</option>
+              <option value="team">Internal Team</option>
+              <option value="client">Client</option>
+              <option value="design">Design Team</option>
+            </select>
+            <svg
+              className="select-arrow"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+        </label>
+
         {hasActiveFilters && (
           <button
             type="button"

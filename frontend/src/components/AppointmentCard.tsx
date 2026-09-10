@@ -12,6 +12,8 @@ interface Props {
   onComplete: (appointment: Appointment) => void;
   onCancel: (appointment: Appointment) => void;
   actionLoading?: boolean;
+  isSelected?: boolean;
+  onSelect?: (appointment: Appointment) => void;
 }
 
 export function AppointmentCard({
@@ -20,8 +22,11 @@ export function AppointmentCard({
   onComplete,
   onCancel,
   actionLoading = false,
+  isSelected = false,
+  onSelect,
 }: Props) {
-  function handleCancel() {
+  function handleCancel(e: React.MouseEvent) {
+    e.stopPropagation();
     const confirmed = window.confirm(
       "Are you sure you want to cancel this appointment?"
     );
@@ -29,6 +34,16 @@ export function AppointmentCard({
     if (confirmed) {
       onCancel(appointment);
     }
+  }
+
+  function handleEditClick(e: React.MouseEvent) {
+    e.stopPropagation();
+    onEdit(appointment);
+  }
+
+  function handleCompleteClick(e: React.MouseEvent) {
+    e.stopPropagation();
+    onComplete(appointment);
   }
 
   return (
@@ -39,14 +54,22 @@ export function AppointmentCard({
           : appointment.status === "COMPLETED"
             ? "appointment-card--completed"
             : "appointment-card--scheduled"
-      }`}
+      } ${isSelected ? "appointment-card--selected" : ""}`}
+      onClick={() => onSelect?.(appointment)}
+      tabIndex={0}
+      role="article"
     >
       <div className="appointment-card__header">
         <div className="appointment-card__title-group">
           <h2>{appointment.title}</h2>
         </div>
 
-        <StatusBadge status={appointment.status} />
+        <div className="appointment-card__header-right">
+          <StatusBadge status={appointment.status} />
+          <span className="appointment-card__chevron" aria-hidden="true">
+            ›
+          </span>
+        </div>
       </div>
 
       {appointment.description && (
@@ -96,7 +119,7 @@ export function AppointmentCard({
               type="button"
               className="btn btn--secondary btn--sm"
               disabled={actionLoading}
-              onClick={() => onEdit(appointment)}
+              onClick={handleEditClick}
               title="Edit appointment details"
             >
               <svg
@@ -116,7 +139,7 @@ export function AppointmentCard({
               type="button"
               className="btn btn--success btn--sm"
               disabled={actionLoading}
-              onClick={() => onComplete(appointment)}
+              onClick={handleCompleteClick}
               title="Mark appointment as completed"
             >
               <svg
