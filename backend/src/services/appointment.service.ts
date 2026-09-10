@@ -46,9 +46,9 @@ async function ensureNoConflict(
 }
 
 export async function createAppointment(input: CreateAppointmentInput) {
-  const date = new Date(input.date);
-  const startTime = new Date(`1970-01-01T${input.startTime}:00`);
-  const endTime = new Date(`1970-01-01T${input.endTime}:00`);
+  const date = new Date(`${input.date}T00:00:00Z`);
+  const startTime = new Date(`1970-01-01T${input.startTime}:00Z`);
+  const endTime = new Date(`1970-01-01T${input.endTime}:00Z`);
 
   // 1. Application-level check
   await ensureNoConflict(date, startTime, endTime);
@@ -128,12 +128,12 @@ export async function updateAppointment(
   }
 
   // Calculate final target values for the appointment
-  const finalDate = input.date ? new Date(input.date) : existing.date;
+  const finalDate = input.date ? new Date(`${input.date}T00:00:00Z`) : existing.date;
   const finalStartTime = input.startTime
-    ? new Date(`1970-01-01T${input.startTime}:00`)
+    ? new Date(`1970-01-01T${input.startTime}:00Z`)
     : existing.startTime;
   const finalEndTime = input.endTime
-    ? new Date(`1970-01-01T${input.endTime}:00`)
+    ? new Date(`1970-01-01T${input.endTime}:00Z`)
     : existing.endTime;
 
   if (finalEndTime.getTime() <= finalStartTime.getTime()) {
