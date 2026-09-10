@@ -34,9 +34,9 @@ async function main() {
       {
         title: "Design Discussion",
         description: "Discuss updated designs",
-        date: new Date("2026-09-11T00:00:00Z"),
-        startTime: new Date("1970-01-01T11:00:00Z"),
-        endTime: new Date("1970-01-01T12:00:00Z"),
+        date: new Date("2026-09-10T00:00:00Z"),
+        startTime: new Date("1970-01-01T16:00:00Z"),
+        endTime: new Date("1970-01-01T17:00:00Z"),
         status: AppointmentStatus.CANCELLED,
       },
     ],

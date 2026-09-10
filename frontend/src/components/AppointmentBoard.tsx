@@ -293,11 +293,13 @@ export function AppointmentBoard() {
     cancelled: cancelledCount,
   };
 
-  // Sort display list
+  // Sort display list: always sort by date, then startTime (or by recent)
   const displayAppointments = [...appointments].sort((a, b) => {
     if (sortBy === "recent") {
       return (b.createdAt || "").localeCompare(a.createdAt || "");
     }
+    const dateDiff = a.date.localeCompare(b.date);
+    if (dateDiff !== 0) return dateDiff;
     return a.startTime.localeCompare(b.startTime);
   });
 
@@ -437,6 +439,13 @@ export function AppointmentBoard() {
         {/* Add / Edit Form Modal */}
         {showForm && (
           <AppointmentForm
+            initialValues={{
+              title: "",
+              description: "",
+              date: filters.date || "2026-09-10",
+              startTime: "",
+              endTime: "",
+            }}
             onSubmit={handleCreate}
             onCancel={() => setShowForm(false)}
           />
